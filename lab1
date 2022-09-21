@@ -1,0 +1,129 @@
+//FORM
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using Cards;
+
+namespace lab1
+{
+    public partial class Form1 : Form
+    {
+        Random rnd = new Random();
+        string Head = "Null";
+        Card FirstCard = new Card();
+        Card MyCard = new Card();
+        public string RandomSuit()
+        {
+            int value = rnd.Next(1, 4);
+            string suit = "undefined";
+            switch (value)
+            {
+                case 1:
+                    suit = "Red";
+                    break;
+                case 2:
+                    suit = "Green";
+                    break;
+                case 3:
+                    suit = "Blue";
+                    break;
+                case 4:
+                    suit = "Black";
+                    break;
+            }
+            return suit;
+        }
+        public Form1()
+        {
+            InitializeComponent();
+            Head = RandomSuit();
+            HeadLabel.Text = HeadLabel.Text + Head;
+            BoxChooseSuit.Items.AddRange(new string[] { "Red", "Green", "Blue", "Black" });
+            BoxChooseSuit.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+        }
+
+        public void Discription(int a, string b, TextBox textbox)
+        {
+            if (a != 1 && b != Head)
+                textbox.Text = textbox.Text + "Сможет побить все " + b + " карты, которые меньше " + a.ToString();
+            else if (a == 1 && b != Head)
+                textbox.Text = textbox.Text + "Не сможет побить ни одну из карт";
+            else if (a != 1)
+                textbox.Text = textbox.Text + "Сможет побить все карты, кроме козырных, которые меньше " + a;
+            else
+                textbox.Text = textbox.Text + "Сможет отбить все карты, кроме козырных";
+        }
+        
+        private void MakeCardButton_Click(object sender, EventArgs e)
+        {
+            FirstCard.suit = RandomSuit();
+            FirstCard.value = rnd.Next(1, 10);
+            TextBoxFirstCard.Text = FirstCard.value.ToString() + " " + FirstCard.suit + Environment.NewLine;
+            Discription(FirstCard.value, FirstCard.suit, TextBoxFirstCard);
+        }
+
+
+        private void MakeMyCardButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                MyCard.value = Convert.ToInt32(TextBoxValue.Text);
+                MyCard.suit = BoxChooseSuit.SelectedItem.ToString();
+            }
+            catch (FormatException)
+            {
+                MessageBox.Show(String.Format("Введено(ы) неверное(ые) значение(я)!"));
+            }
+            if (MyCard.value < 1 || MyCard.value > 10)
+            {
+                MessageBox.Show(String.Format("Введено число, не удовлетворяющее диапазону"));
+            }
+            else
+            {
+                TextBoxMyCard.Text = MyCard.value.ToString() + " " + MyCard.suit + Environment.NewLine;
+                Discription(MyCard.value, MyCard.suit, TextBoxMyCard);
+            }
+        }
+        private void Beat(int value1, int value2, string suit1, string suit2, TextBox textbox)
+        {
+            if (suit1 == suit2)//string.equial
+                if (value1 > value2)
+                    textbox.Text = "Победила карта " + value1 + suit1;
+                else textbox.Text = "Победила карта " + value2 + suit2;
+            if (suit1 != Head && suit2 != Head && suit1 != suit2)
+                textbox.Text = "Карты не смогут сражаться";
+            if (suit1 == Head && suit2 != Head)
+                textbox.Text = "Победила карта " + value1 + suit1;
+            else if (suit2==Head && suit1!=Head) 
+                textbox.Text = "Победила карта " + value2 + suit2;
+        }
+        private void BeatButton_Click(object sender, EventArgs e)
+        {
+            Beat(FirstCard.value, MyCard.value, FirstCard.suit, MyCard.suit, TextBoxBeat);
+        }
+    }
+}
+
+//CLASS
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Cards
+{
+    public class Card
+    {
+        public string suit = "Undefined";
+        public int value;
+    }
+}
